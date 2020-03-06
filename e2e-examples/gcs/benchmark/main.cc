@@ -5,18 +5,20 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/security/credentials.h>
 #include <stdio.h>
+
 #include <fstream>
 #include <streambuf>
 #include <string>
+
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/time/time.h"
 #include "google/storage/v1/storage.grpc.pb.h"
 
-using std::string;
-using std::cout;
 using std::cerr;
+using std::cout;
 using std::endl;
+using std::string;
 
 ABSL_FLAG(string, access_token, "", "Access token for auth");
 ABSL_FLAG(string, host, "dns:///storage.googleapis.com:443", "Host to reach");
@@ -41,7 +43,7 @@ std::shared_ptr<grpc::Channel> CreateOAuthChannel() {
                           0);  // Disable DirectPath
     }
     std::shared_ptr<grpc::Channel> channel = grpc::CreateCustomChannel(
-        "storage.googleapis.com", grpc::GoogleDefaultCredentials(),
+        absl::GetFlag(FLAGS_host), grpc::GoogleDefaultCredentials(),
         channel_args);
     return channel;
   } else {
@@ -132,7 +134,7 @@ int main(int argc, char **argv) {
            << endl;
     }
 
-    if(run >= absl::GetFlag(FLAGS_warmup_runs)) {
+    if (run >= absl::GetFlag(FLAGS_warmup_runs)) {
       run_time_millis.push_back(absl::ToInt64Milliseconds(runtime));
     }
 
